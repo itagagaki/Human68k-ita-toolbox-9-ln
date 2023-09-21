@@ -1,6 +1,10 @@
 * ln - make links
 *
 * Itagaki Fumihiko 27-Aug-92  Create.
+* 1.0
+* Itagaki Fumihiko 06-Nov-92  strip_excessive_slashes のバグfixに伴う改版．
+*                             些細なメッセージ変更．
+* 1.1
 *
 * Usage: ln [ -fisv ] source target
 *        ln [ -fisv ] source ... targetdir
@@ -474,7 +478,7 @@ perror_2:
 .data
 
 	dc.b	0
-	dc.b	'## ln 1.0 ##  Copyright(C)1992 by Itagaki Fumihiko',0
+	dc.b	'## ln 1.1 ##  Copyright(C)1992 by Itagaki Fumihiko',0
 
 .even
 perror_table:
@@ -524,7 +528,7 @@ msg_too_few_args:	dc.b	'引数が足りません',0
 msg_too_long_pathname:	dc.b	'パス名が長過ぎます',0
 msg_not_a_directory:	dc.b	'ディレクトリではありません',0
 msg_nodir:		dc.b	'このようなディレクトリはありません',0
-msg_confirm:		dc.b	' を消去してよろしいですか？',0
+msg_confirm:		dc.b	' を消去してよろしいですか？ ',0
 msg_cannot_overwrite:	dc.b	'ディレクトリやボリューム・ラベルには書き込めません',0
 msg_usage:		dc.b	CR,LF
 			dc.b	'使用法:  ln [-fisv] [-] <名前> <作成リンク名>',CR,LF
