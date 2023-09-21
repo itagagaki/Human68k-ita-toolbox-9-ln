@@ -5,9 +5,12 @@
 * Itagaki Fumihiko 06-Nov-92  strip_excessive_slashes のバグfixに伴う改版．
 *                             些細なメッセージ変更．
 * 1.1
+* Itagaki Fumihiko 20-Jan-93  GETPDB -> lea $10(a0),a0
+* Itagaki Fumihiko 20-Jan-93  引数 - と -- の扱いの変更
+* 1.2
 *
-* Usage: ln [ -fisv ] source target
-*        ln [ -fisv ] source ... targetdir
+* Usage: ln [ -fisv ] [ -- ] source target
+*        ln [ -fisv ] [ -- ] source ... targetdir
 
 .include doscall.h
 .include error.h
@@ -22,7 +25,6 @@
 .xref headtail
 .xref cat_pathname
 .xref strip_excessive_slashes
-.xref fclose
 
 STACKSIZE	equ	512
 GETSLEN		equ	32
@@ -38,8 +40,7 @@ start:
 		dc.b	'#HUPAIR',0
 start1:
 		lea	stack_bottom,a7			*  A7 := スタックの底
-		DOS	_GETPDB
-		movea.l	d0,a0				*  A0 : PDBアドレス
+		lea	$10(a0),a0			*  A0 : PDBアドレス
 		move.l	a7,d0
 		sub.l	a0,d0
 		move.l	d0,-(a7)
@@ -73,10 +74,19 @@ decode_opt_loop1:
 		cmpi.b	#'-',(a0)
 		bne	decode_opt_done
 
+		tst.b	1(a0)
+		beq	decode_opt_done
+
 		subq.l	#1,d7
 		addq.l	#1,a0
 		move.b	(a0)+,d0
+		cmp.b	#'-',d0
+		bne	decode_opt_loop2
+
+		tst.b	(a0)+
 		beq	decode_opt_done
+
+		subq.l	#1,a0
 decode_opt_loop2:
 		cmp.b	#'i',d0
 		beq	set_option_i
@@ -321,8 +331,10 @@ create_symlink_perror:
 		bsr	perror
 		bra	create_symlink_done
 create_symlink_done:
-		move.l	d1,d0
-		bra	fclose
+		move.w	d1,-(a7)
+		DOS	_CLOSE
+		addq.l	#2,a7
+		rts
 *****************************************************************
 confirm:
 		move.l	a0,-(a7)
@@ -478,7 +490,7 @@ perror_2:
 .data
 
 	dc.b	0
-	dc.b	'## ln 1.1 ##  Copyright(C)1992 by Itagaki Fumihiko',0
+	dc.b	'## ln 1.2 ##  Copyright(C)1992-93 by Itagaki Fumihiko',0
 
 .even
 perror_table:
@@ -531,8 +543,8 @@ msg_nodir:		dc.b	'このようなディレクトリはありません',0
 msg_confirm:		dc.b	' を消去してよろしいですか？ ',0
 msg_cannot_overwrite:	dc.b	'ディレクトリやボリューム・ラベルには書き込めません',0
 msg_usage:		dc.b	CR,LF
-			dc.b	'使用法:  ln [-fisv] [-] <名前> <作成リンク名>',CR,LF
-			dc.b	'         ln [-fisv] [-] <名前> ... <作成先ディレクトリ>'
+			dc.b	'使用法:  ln [-fisv] [--] <名前> <作成リンク名>',CR,LF
+			dc.b	'         ln [-fisv] [--] <名前> ... <作成先ディレクトリ>'
 msg_newline:		dc.b	CR,LF,0
 msg_arrow:		dc.b	' -> ',0
 dos_wildcard_all:	dc.b	'*.*',0
