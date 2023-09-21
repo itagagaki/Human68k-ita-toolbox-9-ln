@@ -1,0 +1,7 @@
+MANIFEST       このファイル
+README         まず最初にお読み下さい
+NOTICE         版権と許諾についての告示書
+DIRECTORY      ITA製品リスト
+CHANGES        lnのモデルチェンジの履歴
+ln.1           lnのマニュアル
+ln.x           ln実行ファイル
